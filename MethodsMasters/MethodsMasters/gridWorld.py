@@ -4,7 +4,7 @@ import numpy as np
 class GridWorld:
 
     def __init__(self, path):
-        self.directions = {'up':[-1,0], 'down':[1,0], 'left': [0,-1], 'right':[0,1]}
+        self.directions = {'up': [0,-1], 'down': [0, 1], 'left': [-1, 0], 'right': [1, 0]}
         self.values = {'F': -0.04, 'O': 0, 'P': -1, 'E': 1}
         self.map = self.read_file(path)
         self.build_weightmap()
@@ -30,12 +30,12 @@ class GridWorld:
         relative_pos = self.map.shape - goal
         #special treatment for endstate
         if self.map[state] == 'P' or map[state] == 'E':
-            return 'END'
+            return goal,'END'
         #check left and upper out of bounds
-        elif goal.min() < 0 :
+        elif goal.min()<0:
             return state
         #check lower and right out of bounds
-        elif relative_pos.min() < 0 :
+        elif relative_pos.min() < 0:
             return state
         #check for run against wall
         elif self.map[goal] == 'O':
@@ -49,11 +49,3 @@ class GridWorld:
 
     def get_size(self):
         return np.shape(self.map)
-
-    def get_directions(self):
-        return self.directions
-
-    def free_map(self):
-        tmp = ((self.map == 'F') - 1)*(-1) == 1
-        print(tmp)
-        return tmp
