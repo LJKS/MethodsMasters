@@ -49,3 +49,6 @@ class GridWorld:
 
     def get_size(self):
         return np.shape(self.map)
+
+    def get_directions(self):
+        return self.directions
