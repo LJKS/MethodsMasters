@@ -4,7 +4,7 @@ import numpy as np
 class GridWorld:
 
     def __init__(self, path):
-        self.directions = {'up': [0,-1], 'down': [0, 1], 'left': [-1, 0], 'right': [1, 0]}
+        self.directions = {'u': [0,-1], 'd': [0, 1], 'l': [-1, 0], 'r': [1, 0]}
         self.values = {'F': -0.04, 'O': 0, 'P': -1, 'E': 1}
         self.map = self.read_file(path)
         self.build_weightmap()
