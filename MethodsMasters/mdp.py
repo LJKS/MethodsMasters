@@ -7,13 +7,11 @@ class mdp:
 
     def create_policy(self):
         #TODO
-        #directions = GridWorld.directions(self.world)
-        #directions = self.world.directions
-        directions = GridWorld.get_directions(self)
-        
+        directions = GridWorld.getSize(self.world)
+        print(directions)
+
 
     def evaluate_policy(self,policy, max_steps):
-        #TODO
         evaluated_policy = np.zeros(shape = policy.shape)
         while(n < max_steps):
             for x,y in range(self.world):
@@ -34,12 +32,14 @@ class mdp:
            
         reward = -0.04 +gamma*(0.8* self.world[forward_step]+0.1*self.world[side_step_one]+0.1*self.world[side_step_two])
         return reward
-
+    
     def iterate_policy(self):
         #TODO
-        s 
+        a=5
 
     def print_solutions(self):
         #TODO
-
+        a=5
+        
 hallo = mdp('3by4.grid')
+hallo.create_policy()
