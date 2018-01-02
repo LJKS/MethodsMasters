@@ -1,21 +1,25 @@
 
 import numpy as np
 
-def cleanLine(line):
-    #...
-    return line
+class GridWorld:
 
-###readfile
-### get file name
-filename = '3by4.grid'
-file = open(filename, 'r')
-out2 = file.readlines()
-print(len(out2))
+    def __init__(self, path):
+        self.map = readFile(path)
+        
+    def readFile(self, path):
+        tmp = []
+        with open('3by4.grid') as f:
+            for line in f.readlines():
+                tmp.append(line.split())
+        return np.array(tmp)
 
-grid = np.zeros([1,1])
-for line in out2:
-    np.append(grid,cleanLine(np.array(line)),1)
-out = np.array(list(out2))
-print(type(out))
-print(out.size)
-print(out)
+    ###readfile
+    ### get file name
+    filename = '3by4.grid'
+    file = open(filename, 'r')
+    out2 = file.readlines()
+    print(len(out2))
+
+
+
+    print(np.shape(grid))
