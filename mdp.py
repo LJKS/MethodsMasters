@@ -12,9 +12,7 @@ class mdp:
         outPol = np.chararray(self.world.get_size())
         for i in range(0,policy.max()+1):
             outPol[policy == i] = directionsTranslator[i]
-            print(outPol)
         outPol[self.world.free_map()] = 'X'
-        print(outPol)
         return outPol
 
     def evaluate_policy(self):
