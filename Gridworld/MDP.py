@@ -17,11 +17,10 @@ class MDP:
                 side_step1 = self.gridworld.step(position, gwc.DIRECTION_NORTH)
                 side_step2 = self.gridworld.step(position, gwc.DIRECTION_SOUTH)
 
-            cost = gwc.REWARDS[gwc.TILE_TYPE_FREE]
             forward_cost = gwc.PROBABILITIES[0] * self.gridworld.value_grid[forward_step]
             side_step1_cost = gwc.PROBABILITIES[1] * self.gridworld.value_grid[side_step1]
             side_step2_cost = gwc.PROBABILITIES[2] * self.gridworld.value_grid[side_step2]
-            reward = cost + self.gamma * (forward_cost + side_step1_cost + side_step2_cost)
+            reward = gwc.MOVE_COST + self.gamma * (forward_cost + side_step1_cost + side_step2_cost)
             return reward
 
         return self.gridworld.value_grid[position]
@@ -29,24 +28,29 @@ class MDP:
     def evaluate_policy(self):
         evaluated_grid = np.array(self.gridworld.value_grid)
         n = 0
-        while n <= self.evaluation_steps:
+        while n < self.evaluation_steps:
             for x in range(np.shape(self.gridworld.policy_grid)[0]):
                 for y in range(np.shape(self.gridworld.policy_grid)[1]):
                     evaluated_grid[(x, y)] = self.calculate_action((x, y))
             n += 1
             self.gridworld.value_grid = evaluated_grid
 
-    def iterate_policy(self):
+    def improve_policy(self):
+        #TODO: policy improvement
         greedy_policy = np.array(self.gridworld.policy_grid)
-        # TODO: policy iteration
-
         self.gridworld.policy_grid = greedy_policy
+
+
+    def iterate_policy(self):
+        # TODO: policy iteration
+        self.evaluate_policy()
+        self.improve_policy()
+
 
     def __init__(self, gridworld, evaluation_steps, gamma):
         self.gridworld = gridworld
         self.evaluation_steps = evaluation_steps
         self.gamma = gamma
-        self.evaluate_policy()
         self.iterate_policy()
         print('\n Loaded Grid:')
         print(self.gridworld.source_grid)
