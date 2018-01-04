@@ -1,10 +1,17 @@
 import gridworld_constants as gwc
 import numpy as np
+import pandas as pd
+from matplotlib import pyplot as plt
 
 
 class MDP:
 
     def calculate_action(self, position):
+        '''
+         calculates the cost/reward for current action on certain position
+        :param position: the current position on the grid
+        :return: reward/cost for doing currently assigened action on current position
+        '''
         action = self.gridworld.policy_grid[position]
         if (action in gwc.DIRECTIONS):
             # TODO find a better way to add the other directions
@@ -25,6 +32,10 @@ class MDP:
         return self.gridworld.value_grid[position]
 
     def choose_greedy_action(self, position):
+        '''
+        helper function for policy improvement
+        :returns most greedy action for a certain position in the grid
+        '''
         action = self.gridworld.policy_grid[position]
         if action in gwc.DIRECTIONS:
             max_value = float(self.gridworld.value_grid[position])
@@ -36,6 +47,10 @@ class MDP:
         return action
 
     def evaluate_policy(self):
+        '''evaluates current policy n-times
+        - n defined by evaluation steps parameter of MDP
+        - sets new value grid for Gridworld
+        '''
         self.gridworld.reset_value_grid()
         evaluated_grid = np.array(self.gridworld.value_grid)
         n = 0
@@ -47,6 +62,10 @@ class MDP:
             self.gridworld.value_grid = evaluated_grid
 
     def improve_policy(self):
+        '''
+        find a greedy policy
+        - assigns a  new improved policy to Gridworld
+        '''
         greedy_policy = np.array(self.gridworld.policy_grid)
         for x in range(np.shape(self.gridworld.policy_grid)[0]):
             for y in range(np.shape(self.gridworld.policy_grid)[1]):
@@ -54,21 +73,47 @@ class MDP:
         self.gridworld.policy_grid = greedy_policy
 
     def iterate_policy(self):
+        '''
+        policy iteration until convergence
+        - evaluate policy
+        - improve policy
+        '''
         converged = False
         while not converged:
             old_policy = np.array(self.gridworld.policy_grid)
             self.evaluate_policy()
             self.improve_policy()
             converged = np.array_equal(old_policy, self.gridworld.policy_grid)
+            self.calculation_string += '.'
+            print(self.calculation_string)
+
+    def print_output(self):
+        '''
+        prints the data from the MDP:
+        - the original grid handed it
+        - the optimal policy found for the grid
+        - the policy values of the optimal policy
+        '''
+        grid = pd.DataFrame(self.gridworld.source_grid)
+        print('\n Loaded Grid: \n', grid.to_string(index=False))
+        policy = pd.DataFrame(self.gridworld.policy_grid)
+        print('\n Optimal Policy: \n', policy.to_string(index=False))
+        values = pd.DataFrame(self.gridworld.value_grid)
+        print('\n Policy values: \n', values.to_string(index=False), '\n')
+
 
     def __init__(self, gridworld, evaluation_steps, gamma):
+        '''
+        Performs a policy iteration for a given gridworld and prints the outcome
+
+        :param gridworld: The gridworld to work with
+        :param evaluation_steps: the maximum amount of policy evaluation steps to be performed
+        :param gamma: the gamma value for the evaluation (future reward)
+        '''
+        # calculation string printed as user feedback
+        self.calculation_string = 'Calculating '
         self.gridworld = gridworld
         self.evaluation_steps = evaluation_steps
         self.gamma = gamma
         self.iterate_policy()
-        print('\n Loaded Grid:')
-        print(self.gridworld.source_grid)
-        print('\n Optimal Policy:')
-        print(self.gridworld.policy_grid)
-        print('\n Policy values:')
-        print(self.gridworld.value_grid)
+        self.print_output()
