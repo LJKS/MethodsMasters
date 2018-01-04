@@ -46,6 +46,13 @@ class GridWorld:
 
         return new_position
 
+    def reset_value_grid(self):
+        value_grid = np.ndarray(shape=np.shape(self.source_grid), dtype=np.object)
+        for i in range(np.shape(self.source_grid)[0]):
+            for j in range(np.shape(self.source_grid)[1]):
+                value_grid[(i, j)] = gwc.REWARDS[self.source_grid[i][j]]
+        self.value_grid = value_grid
+
     def __init__(self, grid):
         self.source_grid = grid
         self.value_grid, self.policy_grid = self.create_grids()

@@ -1,6 +1,5 @@
-import numpy as np
-
 import gridworld_constants as gwc
+import numpy as np
 
 
 class MDP:
@@ -25,7 +24,19 @@ class MDP:
 
         return self.gridworld.value_grid[position]
 
+    def choose_greedy_action(self, position):
+        action = self.gridworld.policy_grid[position]
+        if action in gwc.DIRECTIONS:
+            max_value = float(self.gridworld.value_grid[position])
+            for direction in gwc.DIRECTIONS:
+                value = float(self.gridworld.value_grid[self.gridworld.step(position, direction)])
+                if value > max_value:
+                    max_value = value
+                    action = direction
+        return action
+
     def evaluate_policy(self):
+        self.gridworld.reset_value_grid()
         evaluated_grid = np.array(self.gridworld.value_grid)
         n = 0
         while n < self.evaluation_steps:
@@ -36,16 +47,19 @@ class MDP:
             self.gridworld.value_grid = evaluated_grid
 
     def improve_policy(self):
-        #TODO: policy improvement
         greedy_policy = np.array(self.gridworld.policy_grid)
+        for x in range(np.shape(self.gridworld.policy_grid)[0]):
+            for y in range(np.shape(self.gridworld.policy_grid)[1]):
+                greedy_policy[(x, y)] = self.choose_greedy_action((x, y))
         self.gridworld.policy_grid = greedy_policy
 
-
     def iterate_policy(self):
-        # TODO: policy iteration
-        self.evaluate_policy()
-        self.improve_policy()
-
+        converged = False
+        while not converged:
+            old_policy = np.array(self.gridworld.policy_grid)
+            self.evaluate_policy()
+            self.improve_policy()
+            converged = np.array_equal(old_policy, self.gridworld.policy_grid)
 
     def __init__(self, gridworld, evaluation_steps, gamma):
         self.gridworld = gridworld

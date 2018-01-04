@@ -34,7 +34,6 @@ def load_grid(url):
 
 if __name__ == '__main__':
     grid = load_grid(get_file_path())
-    # grid = load_grid('grids/3by4.grid')
     world = GridWorld(grid)
     gamma = get_gamma()
     eval_steps = get_evaluation_steps()
