@@ -6,13 +6,13 @@ from matplotlib import pyplot as plt
 
 class MDP:
 
-    def calculate_action(self, position):
+    def calculate_action(self, position, action):
         '''
          calculates the cost/reward for current action on certain position
         :param position: the current position on the grid
         :return: reward/cost for doing currently assigened action on current position
         '''
-        action = self.gridworld.policy_grid[position]
+        
         if (action in gwc.DIRECTIONS):
             # TODO find a better way to add the other directions
             forward_step = self.gridworld.step(position, action)
@@ -38,9 +38,9 @@ class MDP:
         '''
         action = self.gridworld.policy_grid[position]
         if action in gwc.DIRECTIONS:
-            max_value = float(self.gridworld.value_grid[position])
+            max_value = self.calculate_action(position,action)
             for direction in gwc.DIRECTIONS:
-                value = float(self.gridworld.value_grid[self.gridworld.step(position, direction)])
+                value = self.calculate_action(position,direction)
                 if value > max_value:
                     max_value = value
                     action = direction
@@ -57,7 +57,8 @@ class MDP:
         while n < self.evaluation_steps:
             for x in range(np.shape(self.gridworld.policy_grid)[0]):
                 for y in range(np.shape(self.gridworld.policy_grid)[1]):
-                    evaluated_grid[(x, y)] = self.calculate_action((x, y))
+                    action = self.gridworld.policy_grid[(x, y)]
+                    evaluated_grid[(x, y)] = self.calculate_action((x, y),action)
             n += 1
             self.gridworld.value_grid = evaluated_grid
 
