@@ -31,7 +31,7 @@ def get_gamma():
         try:
             gamma = float(input('Please enter a gamma value between 0 and 1:'))
         except:
-            print('Please enter a float value between 0 and 1!')
+            print('Please enter a Float value between 0 and 1!')
     return gamma
 
 
@@ -45,9 +45,23 @@ def get_evaluation_steps():
         try:
             steps = int(input('Please specify the number of policy evaluation steps:'))
         except:
-            print('Please enter an Integer Value!')
+            print('Please enter an Integer value!')
     return steps
 
+def get_move_cost():
+    '''
+    ask user for move costs fore each single move
+    :return: entered amount of costs
+    '''
+    steps = 0
+    move = False
+    while not move:
+        try:
+            steps = float(input('Please enter the move cost to move from a free field (value from the lecture was -0.04):'))
+            move = True
+        except:
+            print('Please enter an Float value!')
+    return steps
 
 def load_grid(url):
     '''
@@ -77,14 +91,15 @@ def start_again():
 
 def start_grid_mdp():
     '''
-    starts the program, restarts after finish
+    starts the program, restarts if the user wants to
     :return:
     '''
     grid = load_grid(get_file_path())
     world = GridWorld(grid)
+    move_costs = get_move_cost()
     gamma = get_gamma()
     eval_steps = get_evaluation_steps()
-    MDP(world, eval_steps, gamma)
+    MDP(world, eval_steps, gamma, move_costs)
     if start_again():
         start_grid_mdp()
 
