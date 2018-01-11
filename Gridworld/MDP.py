@@ -1,31 +1,31 @@
-import gridworld_constants as gwc
 import numpy as np
 import pandas as pd
-from matplotlib import pyplot as plt
+import config
 
 
 class MDP:
 
     def calculate_action(self, position, action):
         '''
-         calculates the cost/reward for current action on certain position
+         calculates the cost/reward for certain action on certain position
         :param position: the current position on the grid
+        :param action: the action to be performed
         :return: reward/cost for doing currently assigned action on current position
         '''
-        
-        if (action in gwc.DIRECTIONS):
+
+        if (action in config.DIRECTIONS):
             # TODO find a better way to add the other directions
             forward_step = self.gridworld.step(position, action)
-            if action == gwc.DIRECTION_NORTH or action == gwc.DIRECTION_SOUTH:
-                side_step1 = self.gridworld.step(position, gwc.DIRECTION_EAST)
-                side_step2 = self.gridworld.step(position, gwc.DIRECTION_WEST)
-            elif action == gwc.DIRECTION_WEST or action == gwc.DIRECTION_EAST:
-                side_step1 = self.gridworld.step(position, gwc.DIRECTION_NORTH)
-                side_step2 = self.gridworld.step(position, gwc.DIRECTION_SOUTH)
+            if action == config.DIRECTION_NORTH or action == config.DIRECTION_SOUTH:
+                side_step1 = self.gridworld.step(position, config.DIRECTION_EAST)
+                side_step2 = self.gridworld.step(position, config.DIRECTION_WEST)
+            elif action == config.DIRECTION_WEST or action == config.DIRECTION_EAST:
+                side_step1 = self.gridworld.step(position, config.DIRECTION_NORTH)
+                side_step2 = self.gridworld.step(position, config.DIRECTION_SOUTH)
 
-            forward_cost = gwc.PROBABILITIES[0] * self.gridworld.value_grid[forward_step]
-            side_step1_cost = gwc.PROBABILITIES[1] * self.gridworld.value_grid[side_step1]
-            side_step2_cost = gwc.PROBABILITIES[2] * self.gridworld.value_grid[side_step2]
+            forward_cost = config.PROBABILITIES[0] * self.gridworld.value_grid[forward_step]
+            side_step1_cost = config.PROBABILITIES[1] * self.gridworld.value_grid[side_step1]
+            side_step2_cost = config.PROBABILITIES[1] * self.gridworld.value_grid[side_step2]
             reward = self.move_cost + self.gamma * (forward_cost + side_step1_cost + side_step2_cost)
             return reward
 
@@ -37,10 +37,10 @@ class MDP:
         :returns most greedy action for a certain position in the grid
         '''
         action = self.gridworld.policy_grid[position]
-        if action in gwc.DIRECTIONS:
-            max_value = self.calculate_action(position,action)
-            for direction in gwc.DIRECTIONS:
-                value = self.calculate_action(position,direction)
+        if action in config.DIRECTIONS:
+            max_value = self.calculate_action(position, action)
+            for direction in config.DIRECTIONS:
+                value = self.calculate_action(position, direction)
                 if value > max_value:
                     max_value = value
                     action = direction
@@ -58,7 +58,7 @@ class MDP:
             for x in range(np.shape(self.gridworld.policy_grid)[0]):
                 for y in range(np.shape(self.gridworld.policy_grid)[1]):
                     action = self.gridworld.policy_grid[(x, y)]
-                    evaluated_grid[(x, y)] = self.calculate_action((x, y),action)
+                    evaluated_grid[(x, y)] = self.calculate_action((x, y), action)
             n += 1
             self.gridworld.value_grid = evaluated_grid
 
@@ -101,7 +101,6 @@ class MDP:
         print('\n Optimal Policy: \n', policy.to_string(index=False))
         values = pd.DataFrame(self.gridworld.value_grid)
         print('\n Policy values: \n', values.to_string(index=False), '\n')
-
 
     def __init__(self, gridworld, evaluation_steps, gamma, move_cost):
         '''

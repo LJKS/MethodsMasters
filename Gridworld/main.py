@@ -30,7 +30,7 @@ def get_gamma():
     while gamma < 0 or gamma > 1:
         try:
             gamma = float(input('Please enter a gamma value between 0 and 1:'))
-        except:
+        except ValueError:
             print('Please enter a Float value between 0 and 1!')
     return gamma
 
@@ -44,9 +44,10 @@ def get_evaluation_steps():
     while steps <= 0:
         try:
             steps = int(input('Please specify the number of policy evaluation steps:'))
-        except:
-            print('Please enter an Integer value!')
+        except ValueError:
+            print('Please enter a positive Integer value!')
     return steps
+
 
 def get_move_cost():
     '''
@@ -57,11 +58,12 @@ def get_move_cost():
     move = False
     while not move:
         try:
-            steps = float(input('Please enter the move cost to move from a free field (value from the lecture was -0.04):'))
+            steps = float(input('Please enter the costs to move from a free field (value from the lecture was -0.04):'))
             move = True
         except:
-            print('Please enter an Float value!')
+            print('Please enter a Float value!')
     return steps
+
 
 def load_grid(url):
     '''
@@ -73,26 +75,26 @@ def load_grid(url):
         lines = np.array([i.split() for i in file.readlines()])
     return lines
 
+
 def start_again():
-    start = False
-    start_again = False
-    while not start:
+    '''
+    asks the user whether to terminate the program or restart
+    :return: boolean whether to restart
+    '''
+    while True:
         user_input = input('Do you want to start again? (y/n)')
-        #user_input = user_input.strip()
+        # user_input = user_input.strip()
         if user_input == 'y':
-            start_again = True
-            start = True
+            return True
         elif user_input == 'n':
-            start_again = False
-            start = True
+            return False
         else:
             print('Please enter y or n!')
-    return start_again
+
 
 def start_grid_mdp():
     '''
     starts the program, restarts if the user wants to
-    :return:
     '''
     grid = load_grid(get_file_path())
     world = GridWorld(grid)
