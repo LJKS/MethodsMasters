@@ -80,7 +80,6 @@ class MDP:
         - improve policy
         '''
         converged = False
-        count = 0
         while not converged:
             old_policy = np.array(self.gridworld.policy_grid)
             self.evaluate_policy()
@@ -88,11 +87,6 @@ class MDP:
             converged = np.array_equal(old_policy, self.gridworld.policy_grid)
             self.calculation_string += '.'
             print(self.calculation_string)
-            # if costs are above 0, the algorithm would not converge, therefore stop at 100
-            if (self.move_cost > 0) and (count == 100):
-                converged = True
-            count += 1
-        
 
     def print_output(self):
         '''
