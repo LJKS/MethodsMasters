@@ -92,7 +92,6 @@ def start_again():
 def start_grid_mdp():
     '''
     starts the program, restarts if the user wants to
-    :return:
     '''
     grid = load_grid(get_file_path())
     world = GridWorld(grid)
