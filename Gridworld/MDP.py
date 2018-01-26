@@ -14,7 +14,6 @@ class MDP:
         """
 
         if action in config.DIRECTIONS:
-            # TODO find a better way to add the other directions
             forward_step = self.gridworld.step(position, action)
             if action == config.DIRECTION_NORTH or action == config.DIRECTION_SOUTH:
                 side_step1 = self.gridworld.step(position, config.DIRECTION_EAST)
@@ -41,7 +40,7 @@ class MDP:
             max_value = self.calculate_action(position, action)
             for direction in config.DIRECTIONS:
                 value = self.calculate_action(position, direction)
-                if value > max_value:
+                if value >= max_value:
                     max_value = value
                     action = direction
         return action
@@ -96,6 +95,7 @@ class MDP:
         - the optimal policy found for the grid
         - the policy values of the optimal policy
         """
+        pd.options.display.float_format = '{:,.3f}'.format
         grid = pd.DataFrame(self.gridworld.source_grid)
         print('\n Loaded Grid: \n', grid.to_string(index=False))
         policy = pd.DataFrame(self.gridworld.policy_grid)
