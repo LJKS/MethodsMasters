@@ -62,14 +62,14 @@ class Qlearn:
         # save the old policy to check whether it changes
         self.old_values = np.copy(self.gridworld.value_grid)
         self.episodes += 1
-        print('Starting episode ', self.episodes)
+        print("running through maze... ", self.episodes)
 
     def policy_converged(self):
         """
         checks whether the policy converged and returns result
         """
         if np.array_equal(self.old_values, self.gridworld.value_grid):
-            print('CONVERGED')
+            print('CONVERGED after ' + str(self.episodes) + ' episodes')
             return True
         return False
 
