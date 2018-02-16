@@ -59,16 +59,18 @@ class Qlearn:
         """
         # assign agent new start state
         self.current_agent_position = self.get_random_start()
+        # reset the value grid for current episode
+        self.gridworld.reset_value_grid()
         # save the old policy to check whether it changes
-        self.old_values = np.copy(self.gridworld.policy_grid)
+        self.old_values = np.copy(self.target_values)
         self.episodes += 1
-        print("running through maze... ", self.episodes)
+        print("running through grid... ", self.episodes)
 
     def policy_converged(self):
         """
         checks whether the policy converged and returns result
         """
-        if np.array_equal(self.old_values, self.gridworld.policy_grid) and self.episodes > 0:
+        if np.array_equal(self.old_values, self.target_values) and self.episodes > 1:
             self.convergence_count -= 1
             if self.convergence_count <= 0:
                 print('CONVERGED after ' + str(self.episodes - config.CONVERGENCE_COUNT) + ' episodes')
@@ -77,15 +79,16 @@ class Qlearn:
             self.convergence_count = config.CONVERGENCE_COUNT
         return False
 
-    def calculate_q(self, position, new_position):
+    def calculate_q(self, position, new_position, action):
         """
-        the q value function, calculates the new q-value
+        the q value function, calculates the new q-value for position/state
         :param position: the current state/position
         :param new_position:  the next state/position = prime state
+        :param action: the action that should be taken from state
         :return: the updated q value
         """
         # v(s) <-- v(s) + alpha(r+gamma*v(s')-v(s))
-        old_value = self.gridworld.value_grid[(position[0], position[1])]
+        old_value = self.gridworld.action_value_grid[(position[0], position[1])][action]
         prime_value = self.target_values[(new_position[0], new_position[1])]
         q_value = old_value + self.learning_rate * (self.move_costs + self.discount * prime_value - old_value)
         return q_value
@@ -99,7 +102,7 @@ class Qlearn:
         max_value = None
         action = None
         for key, value in self.gridworld.action_value_grid[(position[0], position[1])].items():
-            if max_value is None or value > max_value:
+            if max_value is None or value >= max_value:
                 max_value = value
                 action = key
         return action, max_value
@@ -116,8 +119,8 @@ class Qlearn:
         # use epsilon soft policy to choose action
         probability = random.random()
         # remove best action from list of other actions
-        # calculate new epsilon as it decreases over time
         actions.remove(action)
+        # calculate new epsilon as it decreases over time
         epsilon = self.exploration_rate * pow(0.9, self.episodes)
         if probability > 1 - epsilon + (epsilon / len(config.DIRECTIONS)):
             action = random.choice(actions)
@@ -125,8 +128,7 @@ class Qlearn:
 
     def print_result(self):
         """ prints the value matrix and the policy matrix"""
-        # print_matrix(self.behaviour_policy, '(Behaviour) Policy:')
-        print_matrix(self.gridworld.value_grid, '(Behaviour) Policy Values:')
+        print_matrix(self.gridworld.value_grid, '(Behaviour) Policy Values - current episode:')
         print_matrix(self.gridworld.policy_grid, '(Target) Policy:')
         print_matrix(self.target_values, '(Target) Policy Values:')
         print('\n')
@@ -134,7 +136,7 @@ class Qlearn:
     def step(self):
         """
         agent takes one step and calculates q value
-        - chooses action to take with epsilon soft policy
+        - chooses action to take according to epsilon soft policy
         - updates values in action-value grid
         - updates greedy policy
         """
@@ -148,14 +150,15 @@ class Qlearn:
         # do a step (possible outcome depending on transition probabilities)
         self.current_agent_position = self.get_next_position(position, action)
         # update values
-        value = self.calculate_q(position, self.current_agent_position)
+        value = self.calculate_q(position, self.current_agent_position, action)
         self.gridworld.action_value_grid[(position[0], position[1])][action] = value
         self.gridworld.value_grid[(position[0], position[1])] = value
         # get greedy action and its value
         greedy_action, max_value = self.get_max_action_value(position)
         # update greedy policy and values
         self.gridworld.policy_grid[(position[0], position[1])] = greedy_action
-        self.target_values[(position[0], position[1])] = max_value
+        # round the max values to a certain precision
+        self.target_values[(position[0], position[1])] = round(max_value, 3)
         print(str(action) + ' from ' + str(position) + " to " + str(self.current_agent_position))
 
     def single_step(self):
