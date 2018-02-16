@@ -12,7 +12,7 @@ def print_matrix(matrix, text):
     """
     pd.options.display.float_format = '{:,.3f}'.format
     grid = pd.DataFrame(matrix)
-    print('\n' + text + '\n', grid.to_string(index=False))
+    print('\n' + text + '\n', grid.to_string(index=True))
 
 
 class Qlearn:
@@ -60,7 +60,7 @@ class Qlearn:
         # assign agent new start state
         self.current_agent_position = self.get_random_start()
         # save the old policy to check whether it changes
-        self.old_values = np.copy(self.gridworld.value_grid)
+        self.old_values = np.copy(self.gridworld.policy_grid)
         self.episodes += 1
         print("running through maze... ", self.episodes)
 
@@ -68,9 +68,13 @@ class Qlearn:
         """
         checks whether the policy converged and returns result
         """
-        if np.array_equal(self.old_values, self.gridworld.value_grid):
-            print('CONVERGED after ' + str(self.episodes) + ' episodes')
-            return True
+        if np.array_equal(self.old_values, self.gridworld.policy_grid) and self.episodes > 0:
+            self.convergence_count -= 1
+            if self.convergence_count <= 0:
+                print('CONVERGED after ' + str(self.episodes - config.CONVERGENCE_COUNT) + ' episodes')
+                return True
+        else:
+            self.convergence_count = config.CONVERGENCE_COUNT
         return False
 
     def calculate_q(self, position, new_position):
@@ -82,7 +86,7 @@ class Qlearn:
         """
         # v(s) <-- v(s) + alpha(r+gamma*v(s')-v(s))
         old_value = self.gridworld.value_grid[(position[0], position[1])]
-        prime_value = self.gridworld.value_grid[(new_position[0], new_position[1])]
+        prime_value = self.target_values[(new_position[0], new_position[1])]
         q_value = old_value + self.learning_rate * (self.move_costs + self.discount * prime_value - old_value)
         return q_value
 
@@ -95,7 +99,7 @@ class Qlearn:
         max_value = None
         action = None
         for key, value in self.gridworld.action_value_grid[(position[0], position[1])].items():
-            if max_value is None or value >= max_value:
+            if max_value is None or value > max_value:
                 max_value = value
                 action = key
         return action, max_value
@@ -119,6 +123,14 @@ class Qlearn:
             action = random.choice(actions)
         return action
 
+    def print_result(self):
+        """ prints the value matrix and the policy matrix"""
+        # print_matrix(self.behaviour_policy, '(Behaviour) Policy:')
+        print_matrix(self.gridworld.value_grid, '(Behaviour) Policy Values:')
+        print_matrix(self.gridworld.policy_grid, '(Target) Policy:')
+        print_matrix(self.target_values, '(Target) Policy Values:')
+        print('\n')
+
     def step(self):
         """
         agent takes one step and calculates q value
@@ -138,17 +150,13 @@ class Qlearn:
         # update values
         value = self.calculate_q(position, self.current_agent_position)
         self.gridworld.action_value_grid[(position[0], position[1])][action] = value
+        self.gridworld.value_grid[(position[0], position[1])] = value
         # get greedy action and its value
         greedy_action, max_value = self.get_max_action_value(position)
-        self.gridworld.value_grid[(position[0], position[1])] = max_value
-        # update greedy policy
+        # update greedy policy and values
         self.gridworld.policy_grid[(position[0], position[1])] = greedy_action
-
-    def print_result(self):
-        """ prints the value matrix and the policy matrix"""
-        print_matrix(self.gridworld.value_grid, 'Value grid:')
-        print_matrix(self.gridworld.policy_grid, 'Policy grid:')
-        # print_matrix(self.gridworld.action_value_grid, 'Action value grid:')
+        self.target_values[(position[0], position[1])] = max_value
+        print(str(action) + ' from ' + str(position) + " to " + str(self.current_agent_position))
 
     def single_step(self):
         """
@@ -219,9 +227,13 @@ class Qlearn:
         self.exploration_rate = exploration_rate
         # sets a random legal start position for the agent
         self.current_agent_position = self.get_random_start()
-        # the policy to compare to in order to evaluate whether the policy converges
-        self.old_values = None
         # number of episodes done
         self.episodes = 0
+        # the values for the greedy/target policy
+        self.target_values = np.copy(self.gridworld.value_grid)
+        # the values to compare to for convergence
+        self.old_values = None
+        # the amount of episodes that need to run and not change to determine convergence
+        self.convergence_count = config.CONVERGENCE_COUNT
         # ask for user input on possible options
         self.user_action()
