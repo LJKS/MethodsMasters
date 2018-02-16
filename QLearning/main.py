@@ -184,7 +184,7 @@ def develop_start():
     move_costs = -0.04
     gamma = 1
     alpha = 0.5
-    epsilon = 0.4
+    epsilon = 0.5
     Qlearn(world, move_costs, gamma, alpha, epsilon)
     if start_again():
         develop_start()
