@@ -112,8 +112,10 @@ class Qlearn:
         # use epsilon soft policy to choose action
         probability = random.random()
         # remove best action from list of other actions
+        # calculate new epsilon as it decreases over time
         actions.remove(action)
-        if probability > 1 - self.exploration_rate + (self.exploration_rate / len(config.DIRECTIONS)):
+        epsilon = self.exploration_rate * pow(0.9, self.episodes)
+        if probability > 1 - epsilon + (epsilon / len(config.DIRECTIONS)):
             action = random.choice(actions)
         return action
 
