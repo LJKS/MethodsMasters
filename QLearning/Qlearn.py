@@ -128,12 +128,11 @@ class Qlearn:
 
     def print_result(self):
         """ prints the value matrix and the policy matrix"""
-        print_matrix(self.gridworld.value_grid, '(Behaviour) Policy Values - current episode:')
         print_matrix(self.gridworld.policy_grid, '(Target) Policy:')
         print_matrix(self.target_values, '(Target) Policy Values:')
         print('\n')
 
-    def step(self):
+    def step(self, print_values=False):
         """
         agent takes one step and calculates q value
         - chooses action to take according to epsilon soft policy
@@ -160,13 +159,14 @@ class Qlearn:
         # round the max values to a certain precision
         self.target_values[(position[0], position[1])] = round(max_value, 3)
         print(str(action) + ' from ' + str(position) + " to " + str(self.current_agent_position))
+        if print_values:
+            print_matrix(self.gridworld.value_grid, '(Behaviour) Policy Values - current episode:')
 
     def single_step(self):
         """
         agent takes one step and updated matrix is displayed
         """
-        self.step()
-        self.print_result()
+        self.step(print_values=True)
 
     def multi_steps(self, print_result=True):
         """
