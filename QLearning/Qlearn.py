@@ -71,12 +71,12 @@ class Qlearn:
         checks whether the policy converged and returns result
         """
         if np.array_equal(self.old_values, self.target_values) and self.episodes > 1:
-            self.convergence_count -= 1
-            if self.convergence_count <= 0:
-                print('CONVERGED after ' + str(self.episodes - config.CONVERGENCE_COUNT) + ' episodes')
+            self.convergence_counter -= 1
+            if self.convergence_counter <= 0:
+                print('CONVERGED after ' + str(self.episodes - self.convergence_amount) + ' episodes')
                 return True
         else:
-            self.convergence_count = config.CONVERGENCE_COUNT
+            self.convergence_counter = self.convergence_amount
         return False
 
     def calculate_q(self, position, new_position, action):
@@ -214,7 +214,7 @@ class Qlearn:
             else:
                 print('Please enter m or a or q!')
 
-    def __init__(self, gridworld, move_costs, discount, learning_rate, exploration_rate):
+    def __init__(self, gridworld, move_costs, discount, learning_rate, exploration_rate, convergence_count):
         """
         Initalizes the q-learning program
         :param gridworld:  the grid to work with
@@ -222,12 +222,14 @@ class Qlearn:
         :param discount: the gamma value for the evaluation
         :param learning_rate: the learning rate/alpha value to use
         :param exploration_rate: the exploration rate for epsilon soft policy
+        :param convergence_count: the iteration number in which the policy does not change anymore to count as converged
         """
         self.gridworld = gridworld
         self.move_costs = move_costs
         self.discount = discount
         self.learning_rate = learning_rate
         self.exploration_rate = exploration_rate
+        self.convergence_amount = convergence_count
         # sets a random legal start position for the agent
         self.current_agent_position = self.get_random_start()
         # number of episodes done
@@ -237,6 +239,6 @@ class Qlearn:
         # the values to compare to for convergence
         self.old_values = None
         # the amount of episodes that need to run and not change to determine convergence
-        self.convergence_count = config.CONVERGENCE_COUNT
+        self.convergence_counter = convergence_count
         # ask for user input on possible options
         self.user_action()

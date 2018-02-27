@@ -43,7 +43,7 @@ def get_discount():
     ask user for gamma value for policy evaluation
     :return: entered gamma value
     """
-    return get_zero_one_value('Please enter a discount value (gamma) between 0 and 1:')
+    return get_zero_one_value('Please enter a discount value (gamma) between 0-1:')
 
 
 def get_evaluation_steps():
@@ -91,6 +91,22 @@ def get_learning_rate():
     :return: alpha according to user
     """
     return get_zero_one_value('Please enter a learning rate (alpha value) between 0-1:')
+
+
+def get_convergence_counter():
+    """
+    asks user for a specified amount of times the policy values need to stay the same for it to
+    count as converged
+    :return: the specified amount of iterations
+    """
+    count = 0
+    while count <= 0:
+        try:
+            count = int(input(
+                'Please specify the convergence count:\n(= number of iterations in which the policy does not change anymore)'))
+        except ValueError:
+            print('Please enter a positive Integer value!')
+    return count
 
 
 def load_grid(url):
@@ -166,7 +182,8 @@ def start_q_learning():
     gamma = get_discount()
     alpha = get_learning_rate()
     epsilon = get_exploration_rate()
-    Qlearn(world, move_costs, gamma, alpha, epsilon)
+    convergence_count = get_convergence_counter()
+    Qlearn(world, move_costs, gamma, alpha, epsilon, convergence_count)
 
 
 def start():
@@ -178,19 +195,19 @@ def start():
         start()
 
 
-# TODO: remove me
+# TODO: remove me - for development
 def develop_start():
     world = GridWorld(load_grid('grids/3by4.grid'))
     move_costs = -0.04
     gamma = 1
     alpha = 0.5
     epsilon = 0.5
-    Qlearn(world, move_costs, gamma, alpha, epsilon)
+    Qlearn(world, move_costs, gamma, alpha, epsilon, 5)
     if start_again():
         develop_start()
 
 
 if __name__ == '__main__':
-    # start()
+    start()
     # TODO: remove me
-    develop_start()
+    # develop_start()
